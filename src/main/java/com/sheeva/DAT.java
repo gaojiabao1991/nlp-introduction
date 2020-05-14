@@ -1,15 +1,13 @@
 package com.sheeva;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by sheeva on 2020/5/2.
  * V1
  */
 public class DAT {
-    private int size = 5;
+    private int size = 100;
 
     String[] states = new String[size];
     int[] base = new int[size];
@@ -30,23 +28,44 @@ public class DAT {
         check[0] = -1;
     }
 
-    public DAT(String[] texts) {
+//    public DAT(String[] texts) {
+//        this();
+//        for (String text : texts) {
+//            for (int i = 0; i < text.length() + 1; i++) {
+//                addOne(text, i);
+//            }
+//        }
+//    }
+
+    public DAT(Collection<String> texts) {
         this();
+//        for (String text : texts) {
+//            for (int i = 0; i < text.length() + 1; i++) {
+//                addOne(text, i);
+//            }
+//        }
+
+        int maxLen = 0;
         for (String text : texts) {
-            for (int i = 0; i < text.length() + 1; i++) {
-                addOne(text, i);
-                System.out.println();
+            maxLen = Math.max(maxLen, text.length());
+        }
+
+        for (int i = 0; i < maxLen + 1; i++) {
+            System.out.println(i);
+            for (String text : texts) {
+                if (i <= text.length()) addOne(text, i);
             }
         }
+        System.out.println("dat build complete, size: " + size);
     }
 
-    public void insert(String text) {
+    public void add(String text) {
         for (int i = 0; i < text.length() + 1; i++) {
             addOne(text, i);
         }
     }
 
-    public boolean containsKey(String text) {
+    public boolean contains(String text) {
         int b = 0;
         for (int i = 0; i < text.length() + 1; i++) {
             int p = base[b] + code(text, i);
@@ -56,36 +75,40 @@ public class DAT {
         return true;
     }
 
-    public boolean startsWith(String prefix) {
+    public int maxMatchLen(String s, int start) {
         int b = 0;
-        for (int i = 0; i < prefix.length(); i++) {
-            int p = base[b] + code(prefix, i);
-            if (p >= size || base[p] == 0 || check[p] != b) return false;
+        int maxMatch = 0;
+        for (int i = start; i < s.length(); i++) {
+            int p = base[b] + code(s, i);
+            if (p >= size || base[p] == 0 || check[p] != b) return maxMatch;
             b = p;
+            //判断是否是叶子节点
+            int leaf = base[b];
+            if (leaf < size && base[leaf] != 0 && check[leaf] == b) maxMatch = i + 1;
         }
-        return true;
+        return maxMatch;
     }
 
-    public void addOne(String text, int insert) {
+    public void addOne(String text, int pos) {
         int b = 0;
-        for (int i = 0; i < insert; i++) {
+        for (int i = 0; i < pos; i++) {
             int p = base[b] + code(text, i);
             if (p >= size || check[p] != b) throw new RuntimeException("error");
             b = p;
         }
 
-        int nextIndex = base[b] + code(text, insert);
+        int nextIndex = base[b] + code(text, pos);
         check_n_grow(nextIndex); //使用更大的索引前检查是否溢出
 
         //冲突了, 该位置已被占用, 修改base[b]
         if (base[nextIndex] != 0) {
             if (check[nextIndex] == b) return; //已经加入过了
-            moveBase(b, code(text, insert));
-            nextIndex = base[b] + code(text, insert);
+            moveBase(b, code(text, pos));
+            nextIndex = base[b] + code(text, pos);
         }
         check[nextIndex] = b;
         base[nextIndex] = base[b];
-//        states[nextIndex] = text.substring(0, insert + 1);
+//        states[nextIndex] = text.substring(0, pos + 1);
     }
 
     //修改base[index]的值, 使得newCode可以无冲突的插入(所有已经存在的基于index状态的后继状态将被移动)
@@ -144,18 +167,22 @@ public class DAT {
     }
 
     public static void main(String[] args) {
-//        String[] texts = {"清华", "清华大学", "清新", "中华", "华人"};
-//        DAT dat = new DAT(texts);
+//        DAT trie = new DAT();
+//        trie.add("ab");
+//        trie.add("abc");
+//        trie.add("def");
 //
-//        for (int i = 0; i < texts.length; i++) {
-//            System.out.println(dat.containsKey(texts[i]));
-//        }
+//        System.out.println(trie.contains("ab"));
+//        System.out.println(trie.contains("abc"));
+//        System.out.println(trie.contains("def"));
+//        System.out.println(trie.contains("a"));
+//        System.out.println(trie.contains("b"));
+//        System.out.println(trie.contains("c"));
+//        System.out.println(trie.contains("d"));
 //
-//        System.out.println(dat.containsKey("清"));
-//        System.out.println(dat.startsWith("清"));
+//        System.out.println(trie.maxMatchLen("abcdef", 0));
+//        System.out.println(trie.maxMatchLen("de", 0));
 
-        DAT dat = new DAT();
-//        dat.insert("search");
-        System.out.println(dat.startsWith("a"));
+
     }
 }
