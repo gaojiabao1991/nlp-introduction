@@ -17,66 +17,75 @@ public class DAT {
 
     private void check_n_grow(int i) {
         if (i < size) return;
-        size *= 2;
+        while (i >= size) {
+            size *= 2;
+        }
         states = Arrays.copyOf(states, size);
         base = Arrays.copyOf(base, size);
         check = Arrays.copyOf(check, size);
     }
 
-    public DAT(String[] texts) {
+    public DAT() {
         base[0] = 1;
         check[0] = -1;
+    }
 
-        int maxLen = 0;
-        for (int i = 0; i < texts.length; i++) {
-            maxLen = Math.max(maxLen, texts[i].length());
-        }
-
-//        for (int i = 0; i < maxLen; i++) {
-//            for (int j = 0; j < texts.length; j++) {
-//                if (i >= texts[j].length()) continue;
-//                addOne(texts[j], i, texts[j].charAt(i));
-//            }
-//        }
-
+    public DAT(String[] texts) {
+        this();
         for (String text : texts) {
-            for (int i = 0; i < text.length(); i++) {
-                addOne(text, i, text.charAt(i), i == text.length() - 1);
+            for (int i = 0; i < text.length() + 1; i++) {
+                addOne(text, i);
                 System.out.println();
             }
         }
     }
 
+    public void insert(String text) {
+        for (int i = 0; i < text.length() + 1; i++) {
+            addOne(text, i);
+        }
+    }
+
     public boolean containsKey(String text) {
         int b = 0;
-        for (int i = 0; i < text.length(); i++) {
-            int p = base[b] + code(text.charAt(i));
-            if (base[p] == 0 || check[p] != b) return false;
+        for (int i = 0; i < text.length() + 1; i++) {
+            int p = base[b] + code(text, i);
+            if (p >= size || base[p] == 0 || check[p] != b) return false;
             b = p;
         }
         return true;
     }
 
-    public void addOne(String text, int insert, char c, boolean leaf) {
+    public boolean startsWith(String prefix) {
+        int b = 0;
+        for (int i = 0; i < prefix.length(); i++) {
+            int p = base[b] + code(prefix, i);
+            if (p >= size || base[p] == 0 || check[p] != b) return false;
+            b = p;
+        }
+        return true;
+    }
+
+    public void addOne(String text, int insert) {
         int b = 0;
         for (int i = 0; i < insert; i++) {
-            int p = base[b] + code(text.charAt(i));
-            if (check[p] != b) throw new RuntimeException("error");
+            int p = base[b] + code(text, i);
+            if (p >= size || check[p] != b) throw new RuntimeException("error");
             b = p;
         }
 
-        int nextIndex = base[b] + code(text.charAt(insert));
+        int nextIndex = base[b] + code(text, insert);
         check_n_grow(nextIndex); //使用更大的索引前检查是否溢出
 
         //冲突了, 该位置已被占用, 修改base[b]
         if (base[nextIndex] != 0) {
             if (check[nextIndex] == b) return; //已经加入过了
-            moveBase(b, code(text.charAt(insert)));
-            nextIndex = base[b] + code(text.charAt(insert));
+            moveBase(b, code(text, insert));
+            nextIndex = base[b] + code(text, insert);
         }
         check[nextIndex] = b;
         base[nextIndex] = base[b];
-        states[nextIndex] = text.substring(0, insert + 1);
+//        states[nextIndex] = text.substring(0, insert + 1);
     }
 
     //修改base[index]的值, 使得newCode可以无冲突的插入(所有已经存在的基于index状态的后继状态将被移动)
@@ -127,28 +136,26 @@ public class DAT {
     }
 
 
-    private static char[] chars = {'清', '华', '大', '学', '新', '中', '人'};
+//    private static char[] chars = {'清', '华', '大', '学', '新', '中', '人'};
 
-    private int getBase(int index) {
-        return Math.abs(base[index]);
-    }
-
-    private static int code(char c) {
-        for (int i = 0; i < chars.length; i++) {
-            if (chars[i] == c) return i + 1;
-        }
-        throw new RuntimeException("error");
+    private static int code(String text, int i) {
+        if (i == text.length()) return 0;
+        return text.charAt(i) + 1;
     }
 
     public static void main(String[] args) {
-        String[] texts = {"清华", "清华大学", "清新", "中华", "华人"};
-        DAT dat = new DAT(texts);
+//        String[] texts = {"清华", "清华大学", "清新", "中华", "华人"};
+//        DAT dat = new DAT(texts);
+//
+//        for (int i = 0; i < texts.length; i++) {
+//            System.out.println(dat.containsKey(texts[i]));
+//        }
+//
+//        System.out.println(dat.containsKey("清"));
+//        System.out.println(dat.startsWith("清"));
 
-        for (int i = 0; i < texts.length; i++) {
-            System.out.println(dat.containsKey(texts[i]));
-        }
-
-        System.out.println(dat.containsKey("新"));
-
+        DAT dat = new DAT();
+//        dat.insert("search");
+        System.out.println(dat.startsWith("a"));
     }
 }
