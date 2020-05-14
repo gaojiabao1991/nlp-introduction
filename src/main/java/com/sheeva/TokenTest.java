@@ -34,15 +34,7 @@ public class TokenTest {
         };
 
         System.out.println("build dat");
-//        DAT dat = new DAT(dict.keySet());
-//        Map<String, CoreDictionary.Attribute> datDict = new HashMap<String, CoreDictionary.Attribute>() {
-//            @Override
-//            public boolean containsKey(Object key) {
-//                return dat.contains((String) key);
-//            }
-//        };
-
-        DATWrapper dat = new DATWrapper(dict.keySet());
+        DAT dat = new DAT(dict.keySet());
         System.out.println("build dat complete");
 
 
@@ -217,7 +209,7 @@ public class TokenTest {
         return r;
     }
 
-    private static List<String> datAdvanceForward(String text, DATWrapper dat) {
+    private static List<String> datAdvanceForward(String text, DAT dat) {
         List<String> r = new LinkedList<>();
         int start = 0;
         while (start < text.length()) {

@@ -4,8 +4,6 @@ import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.dictionary.CoreDictionary;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TreeMap;
 
 /**
@@ -21,8 +19,8 @@ public class Test {
         DAT dat = new DAT(dict.keySet());
         System.out.println("build dat complete");
 
-        System.out.println(dat.contains("新老"));
-        System.out.println(dat.maxMatchLen("新老",0));
+//        System.out.println(dat.contains("新老"));
+//        System.out.println(dat.maxMatchLen("新老",0));
     }
 
 
